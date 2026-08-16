@@ -14,22 +14,21 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# --- Config ---
+
 HF_API_KEY    = os.getenv("HF_API_KEY")
 NEO4J_URI     = os.getenv("NEO4J_URI")
 NEO4J_USER    = os.getenv("NEO4J_USERNAME")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 
-# HuggingFace model — free via Inference API
+
 HF_MODEL = "moonshotai/Kimi-K3"
 
-# --- Init clients ---
+
 hf_client = InferenceClient(token=HF_API_KEY)
 driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
-# --- Chat history store (in-memory, per session via client-side passing) ---
 
-# --- Neo4j query ---
+
 def query_graph(symptoms: list[str]):
     with driver.session() as session:
         result = session.run("""
@@ -76,7 +75,7 @@ def extract_symptoms(text: str) -> list[str]:
         found.remove("cough")
     return found
 
-# --- Ask HuggingFace LLM ---
+
 def ask_llm(chat_history: list, user_input: str, context: str) -> str:
     system_prompt = (
         "You are a careful and caring homeopathic health-information assistant. "
@@ -85,13 +84,14 @@ def ask_llm(chat_history: list, user_input: str, context: str) -> str:
         "and mention only medicines explicitly associated with that condition. "
         "Never invent medicines, symptoms, conditions, dosages, potencies, or treatments. "
         "Do not diagnose the user or make personalized prescriptions. "
-        "If the requested information is not present in the knowledge base, clearly say "
+        "If the requested information is not present in the knowledge base, clearly say and tell to consult a professional"
         "Never write directly you are referring a knowledge base"
         "that you do not have enough information to answer. "
         "Keep responses concise, clear, and easy to understand. "
         "Do not present homeopathy as a guaranteed cure. "
         "Please remember that you should never ask a user to refer a qualified physician, the dataset you refer to is already made by a doctor"
         "professional before taking any medicine."
+
     )
 
     # Build messages for chat-completion style
