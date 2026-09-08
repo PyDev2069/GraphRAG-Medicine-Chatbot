@@ -23,6 +23,28 @@ HOMEOPATHIC MEDICINE CH.../
 └── requirements.txt        # Python package dependencies
 ```
 
+## 🧠 How It Works
+
+**1. Knowledge Graph Ingestion**
+- The `load_graph.py` script parses structured medical data from `homeopathy_dataset.json` and creates a semantic graph database in Neo4j AuraDB
+- Three node types are created: Conditions, Symptoms, and Medicines
+- Relationships are established: Conditions have associated Symptoms and Treatments (Medicines)
+
+**2. User Query Processing**
+- When a user submits a message via the web interface, the system extracts symptom keywords from the input
+- A Cypher query searches the Neo4j graph to find matching conditions, related symptoms, and recommended medicines
+- Results are scored based on symptom overlap and returned in order of relevance
+
+**3. Context-Augmented LLM Response**
+- Retrieved graph context (conditions, symptoms, and medicines) is formatted and injected into the LLM prompt
+- The LLM uses this grounded context to generate accurate, knowledge-base-aware responses
+- Responses remain strictly aligned with the homeopathy dataset without fabrication
+
+**4. Chat Interface**
+- The Flask backend serves a web-based chat interface
+- User messages and chat history are maintained for multi-turn conversations
+- Detected symptoms and matched conditions are returned alongside LLM responses for transparency
+
 ## 🛠️ Prerequisites
 
 Before setting up the project, ensure you have the following installed:
@@ -43,10 +65,8 @@ cd homeopathic-medicine-chatbot
 ### 2. Set Up a Virtual Environment
 It is recommended to use a virtual environment to manage dependencies.
 ```bash
-# Create virtual environment
 python -m venv venv
 
-# Activate virtual environment
 # On Windows:
 venv\Scripts\activate
 # On macOS/Linux:
@@ -61,13 +81,11 @@ pip install -r requirements.txt
 ### 4. Configure Environment Variables
 Create a file named `.env` in the root directory and add your credentials:
 ```env
-# Neo4j AuraDB Configuration
 NEO4J_URI=neo4j+s://<your-aura-db-id>.databases.neo4j.io
 NEO4J_USERNAME=neo4j
 NEO4J_PASSWORD=<your-auradb-password>
 
-# LLM Configuration
-LLM_API_KEY=<your-llm-api-key>
+HF_API_KEY=<your-llm-api-key>
 ```
 
 ### 5. Load the Knowledge Graph
@@ -83,10 +101,5 @@ python app.py
 ```
 Open your browser and navigate to `http://127.0.0.1:5000` to interact with the chatbot interface.
 
-## 🧠 How It Works
-1. **Knowledge Graph Ingestion (`load_graph.py`)**: Parses structured data from `homeopathy_dataset.json` and builds a semantic graph database in Neo4j AuraDB.
-2. **Graph Querying & Context Retrieval (`app.py`)**: When a user submits a prompt via the web interface (`index.html`), the backend searches the Neo4j graph for related medical nodes, symptoms, and remedies.
-3. **LLM Generation**: The retrieved graph context is injected into the LLM prompt template, allowing the model to generate accurate answers grounded strictly in the homeopathy dataset.
-
 ## ⚠️ Disclaimer
-This chatbot is an AI-powered educational and research tool exploring GraphRAG applications in alternative medicine. It does not provide professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider for medical concerns.
+This chatbot is an AI-powered educational and research tool exploring GraphRAG applications in alternative medicine. It does not provide professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before taking any medicine.
